@@ -1,12 +1,26 @@
-int medConfig[10][2];
+#include <StandardCplusplus.h>
+#include <vector>
+
+struct timing {
+    long frequency;
+    vector<long> times;
+};
+
+struct MedConfig {
+    int dosage;
+    timing timing;
+};
+
+MedConfig globalConfig[10];
+
 
 void setup() {
     Serial.begin(9600);
     int i = 0;
   
     while (i < 10) {
-	init_dosage(i);
-	init_timing(i);
+	globalConfig[i][0] = initDosage(i);
+	globalConfig[i][1] = initTiming(i);
 	i++;
 
 	if (i == 9) {
@@ -43,43 +57,101 @@ void loop() {
 }
 
 
-void init_dosage(int i) {
-    // TODO: modifies medConfig[i][0] through serial TUI
+int initDosage(int i) {
 }
 
-void init_timing(int i) {
-    // TODO: modifies medConfig[i][1] through serial TUI
+timing initTiming(int i) {
+    timing result;
+    
+    Serial.println("Enter the frequency (in days) at which this medication should be taken.");
+    Serial.println("Ex: If the medication should be taken daily, enter `1`. If it should be taken every other day, enter `2`.");
+    while (true) {
+	if (Serial.available() > 0) {
+	    long input = serial.parseInt();
+
+	    if (input > 0) {
+		result[0] = input;
+		break;
+	    }
+	}
+	Serial.println("Invalid input. Please try again, entering a single number:")
+	    }
+
+    Serial.println("Enter the time(s) of day at which this medication should be taken as a comma-separated list.");
+    Serial.println("Ex: For a medication that needs to be taken at 9am and 6pm, enter `9,18`");
+    while (true) {
+	if (Serial.available() > 0) {
+	    parsedInput = readCSV();
+	    if (!parsedInput.empty()) {
+		result[1] = parsedInput;
+		break;
+	    }
+	    Serial.println("Invalid input. Please try again, entering a comma-separated list of numbers.");
+	}
+    }
+}
+
+vector<long> readCSV() {
+    String input = Serial.readString();
+    input.trim();
+    
+    int idx = 0;
+    vector<long> result;
+
+    while (true) {
+	int nextCommaIdx = input.indexOf(',', idx);
+
+	String substring;
+	// Last comma
+	if (nextCommaIdx == -1) {
+	    substring = input.substring(idx);
+	} else {
+	    substring = input.substring(idx, nextCommaIdx);
+	}
+
+	long parsedInt = substring.toInt();
+	// Represents invalid substring
+	if (substring != '0' && parsedInt == 0) {
+	    return vector<long>();
+	}
+	result.push_back(parsedInt);
+
+	idx = nextCommaIdx + 1;
+	if (nextCommaIdx == -1) {
+	    break;
+	}
+    }
 }
 
 
-void alert_visual() {
+void alertVisual() {
     // TODO
 }
 
-void alert_verbal() {
+void alertVerbal() {
     // TODO
 }
 
-void measure_motion() {
+void measureMotion() {
     // TODO
 }
 
-void check_motion_threshold() {
+void checkMotionThreshold() {
     // TODO
 }
 
-void move_platform() {
+void movePlatform() {
     // TODO
 }
 
-void move_arm() {
+void moveArm() {
     // TODO
 }
 
-void dispense_medication() {
+void dispenseMedication() {
     // TODO
 }
 
-void alert_caregiver() {
+void alertCaregiver() {
     // TODO
 }
