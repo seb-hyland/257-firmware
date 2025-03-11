@@ -1,5 +1,6 @@
 #include <StandardCplusplus.h>
 #include <vector>
+#include <array>
 
 struct timing {
     long frequency;
@@ -56,11 +57,65 @@ void loop() {
     // TODO
 }
 
+array<int, 2> initTime() {
+    array<int, 2> curTime;
 
-int initDosage(int i) {
+    Serial.println("Enter the current hour in 24-hour time.");
+    Serial.println("Ex: If it is 4:32 pm, enter `16`.");
+    while (true) {
+	if (Serial.available() > 0) {
+	    String input = serial.readString();
+	    long intInput = input.parseInt();
+
+	    if (input != '0' && intInput == 0) {
+		Serial.println("Invalid input. Please try again, entering a single nonzero number:");
+	    } else if (intInput >= 0 && intInput < 24) {
+		Serial.println("Invalid input. Please try again, entering a number between 0 and 23:");
+	    } else {
+		curTime[0] = intInput;
+		break;
+	    }
+	}
+    }
+
+    Serial.println("Enter the current minute.");
+    Serial.println("Ex: If it is 4:32 pm, enter `32`.");
+    while (true) {
+	if (Serial.available() > 0) {
+	    String input = serial.readString();
+	    long intInput = input.parseInt();
+
+	    if (input != '0' && intInput == 0) {
+		Serial.println("Invalid input. Please try again, entering a single nonzero number:");
+	    } else if (intInput >= 0 && intInput < 60) {
+		Serial.println("Invalid input. Please try again, entering a number between 0 and 59:");
+	    } else {
+		curTime[1] = intInput;
+		break;
+	    }
+	}
+    }
+
+    return curTime;
 }
 
-timing initTiming(int i) {
+
+int initDosage() {
+    Serial.println("Enter the dosage required for this medication.");
+    Serial.println("Ex: If two pills should be taken at a time, enter `2`.");
+    while (true) {
+	if (Serial.available() > 0) {
+	    long input = serial.parseInt();
+
+	    if (input > 0) {
+		return input;
+	    }
+	}
+	Serial.println("Invalid input. Please try again, entering a single nonzero number:");
+    }
+}
+
+timing initTiming() {
     timing result;
     
     Serial.println("Enter the frequency (in days) at which this medication should be taken.");
@@ -74,8 +129,8 @@ timing initTiming(int i) {
 		break;
 	    }
 	}
-	Serial.println("Invalid input. Please try again, entering a single number:")
-	    }
+	Serial.println("Invalid input. Please try again, entering a single nonzero number:");
+    }
 
     Serial.println("Enter the time(s) of day at which this medication should be taken as a comma-separated list.");
     Serial.println("Ex: For a medication that needs to be taken at 9am and 6pm, enter `9,18`");
@@ -89,6 +144,8 @@ timing initTiming(int i) {
 	    Serial.println("Invalid input. Please try again, entering a comma-separated list of numbers.");
 	}
     }
+
+    return result;
 }
 
 vector<long> readCSV() {
