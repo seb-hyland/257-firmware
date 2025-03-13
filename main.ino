@@ -14,8 +14,18 @@ struct MedConfig {
 
 MedConfig globalConfig[10];
 
+//configuring the lcd display connected to the breadboard
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+//initializing a variable to keep track of the light sensor value
+int sensorValue = 0;
 
 void setup() {
+
+    lcd.begin(16, 2);
+    pinMode(A0, INPUT);
+
     Serial.begin(9600);
     int i = 0;
   
