@@ -4,18 +4,28 @@
 
 void checkStatus(time time) {
     // loops over every med
-    // checks if for each: hour == curHour, curMin < 30, lastTaken == curHour
-        // deal with lcdManager and alertVerbal
-        // if yes: measureBrightness, checkBrightnessThreshold
-        // if yes: dispenseMedication
-    // if curMin >= 30
-        // check if medication has been taken
-            // if no, alertCaregiver
-        // turn everything off
+    // for each: checkTimeMatch
+        // case TRUE
+            // deal with lcdManager and alertVerbal
+            // if yes: measureBrightness, checkBrightnessThreshold
+            // if yes: dispenseMedication
+        // case FALSE
+            // do nothing
+        // case SAME_HOUR
+            // if meds not taken then alertCaregiver
+            // turn alertVerbal off
+            // lcdManager
 }
 
-bool checkTimeMatch(int i, time time) {
-    // checks if this medication needs to be taken now 
+enum timeMatch {
+    TRUE,
+    FALSE,
+    SAME_HOUR,
+};
+
+timeMatch checkTimeMatch(int i, time time) {
+    // checks if this medication needs to be taken now
+    // if: hour == curHour, curMin < 30, lastTaken == curHour
 }
 
 enum lcdStatus {
