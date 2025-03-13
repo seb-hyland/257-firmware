@@ -3,34 +3,53 @@
 #include <Servo.h>
 #include "globals.h"
 
-void checkStatus(time time) {
+// Configuring the lcd display connected to the breadboard
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+// Initializing a variable to keep track of the light sensor value
+int sensorValue = 0;
+
+// Initializing a global to hold the LCD display status
+LCDStatus displayStatus;
+
+void checkStatus() {
     for (int i = 0; i < 10; i++) {
 	if (globalConfig[i].initialized) {
 	    switch (checkTimeMatch(i, time)) {
 	    case TRUE:
-		// ...
+		// Medicine not yet taken
+		if (rtc.getEpoch() - globalConfig[i].lastDose > 30 * 60) {
+		    if (displayStatus != LCDStatus::ALERT_CAREGIVER) {
+			displayStatus = LCDStatus::ALERT_MEDICATION;
+		    }
+		    int state = buzzer.getState();
+		    if (state == BUZZER_IDLE) {
+			buzzer.playMelody();
+		    }
+
+		    measureBrightness();
+		}
+		// Medicine taken
+		else if (displayStatus != LCDStatus::ALERT_CAREGIVER) {
+		    buzzer.stop();
+		}
 		break;
 	    case FALSE:
-		// ...
+		if (displayStatus != LCDStatus::ALERT_CAREGIVER) {
+		    buzzer.stop();
+		}
 		break;
 	    case SAME_HOUR:
-		// ...
+		// Medicine was missed!
+		if (rtc.getEpoch() - globalConfig[i].lastDose > 60 * 60) {
+		    displayStatus = LCDStatus::ALERT_CAREGIVER;
+		    buzzer.beep();
+		}
 		break;
 	    }
 	}
     }
-    // loops over every med
-    // for each: checkTimeMatch
-    // case TRUE
-    // deal with lcdManager and alertVerbal
-    // if yes: measureBrightness, checkBrightnessThreshold
-    // if yes: dispenseMedication
-    // case FALSE
-    // do nothing
-    // case SAME_HOUR
-    // if meds not taken then alertCaregiver
-    // turn alertVerbal off
-    // lcdManager
 }
 
 enum TimeMatch {
@@ -39,19 +58,20 @@ enum TimeMatch {
     SAME_HOUR,
 };
 
-TimeMatch checkTimeMatch(int i, time time) {
+TimeMatch checkTimeMatch(int i) {
+    
     // checks if this medication needs to be taken now
     // if: hour == curHour, curMin < 30, lastTaken == curHour
 }
 
-enum lcdStatus {
+enum LCDStatus {
     ALERT_MEDICATION,
     ALERT_CAREGIVER,
     OFF
 };
 
-void lcdManager(enum lcdStatus) {
-    switch (lcdStatus) {
+void lcdManager() {
+    switch (displayStatus) {
         case ALERT_MEDICATION:
             lcd.setCursor(0,0);
             lcd.print("Please take your");

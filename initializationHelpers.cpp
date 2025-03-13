@@ -2,11 +2,13 @@
 #include <StandardCplusplus.h>
 #include <vector>
 #include <array>
+#include "globals.h"
 
-// RTC lib: https://github.com/cvmanjoo/RTC/wiki
-array<int, 2> initTime() {
-    array<int, 2> curTime;
-
+void initTime() {
+    int hour;
+    int minute;
+    int second = 0;
+    
     Serial.println("Enter the current hour in 24-hour time.");
     Serial.println("Ex: If it is 4:32 pm, enter `16`.");
     while (true) {
@@ -19,7 +21,7 @@ array<int, 2> initTime() {
 	    } else if (intInput >= 0 && intInput < 24) {
 		Serial.println("Invalid input. Please try again, entering a number between 0 and 23:");
 	    } else {
-		curTime[0] = intInput;
+		hour = intInput;
 		break;
 	    }
 	}
@@ -37,13 +39,14 @@ array<int, 2> initTime() {
 	    } else if (intInput >= 0 && intInput < 60) {
 		Serial.println("Invalid input. Please try again, entering a number between 0 and 59:");
 	    } else {
-		curTime[1] = intInput;
+		minute = intInput;
 		break;
 	    }
 	}
     }
 
-    return curTime;
+    rtc.setTime(hour, minute, second);
+    rtc.setDate(2, 1, 1970);
 }
 
 

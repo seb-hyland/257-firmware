@@ -12,29 +12,29 @@ struct MedConfig {
     int dosage;
     timing timing;
     bool initialized;
-    time_t last_dose;
+    time_t lastDose;
 };
 
 MedConfig globalConfig[10];
+RTC rtc;
 
-//configuring the lcd display connected to the breadboard
-const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+const BUZZER_PIN = 7;
 
-//initializing a variable to keep track of the light sensor value
-int sensorValue = 0;
 
 void setup() {
     lcd.begin(16, 2);
     pinMode(A0, INPUT);
 
     Serial.begin(9600);
+    rtc.startClock();
+    buzzer = ezBuzzer(BUZZER_PIN);
+
     int i = 0;
-  
     while (i < 10) {
 	globalConfig[i].dosage = initDosage(i);
 	globalConfig[i].timing = initTiming(i);
 	globalConfig[i].initialized = true;
+	globalConfig[i].lastDose = 0;
 	i++;
 
 	if (i == 9) {
