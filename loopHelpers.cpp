@@ -5,29 +5,41 @@
 
 void checkStatus(time time) {
     for (int i = 0; i < 10; i++) {
-	
+	if (globalConfig[i].initialized) {
+	    switch (checkTimeMatch(i, time)) {
+	    case TRUE:
+		// ...
+		break;
+	    case FALSE:
+		// ...
+		break;
+	    case SAME_HOUR:
+		// ...
+		break;
+	    }
+	}
     }
     // loops over every med
     // for each: checkTimeMatch
-        // case TRUE
-            // deal with lcdManager and alertVerbal
-            // if yes: measureBrightness, checkBrightnessThreshold
-            // if yes: dispenseMedication
-        // case FALSE
-            // do nothing
-        // case SAME_HOUR
-            // if meds not taken then alertCaregiver
-            // turn alertVerbal off
-            // lcdManager
+    // case TRUE
+    // deal with lcdManager and alertVerbal
+    // if yes: measureBrightness, checkBrightnessThreshold
+    // if yes: dispenseMedication
+    // case FALSE
+    // do nothing
+    // case SAME_HOUR
+    // if meds not taken then alertCaregiver
+    // turn alertVerbal off
+    // lcdManager
 }
 
-enum timeMatch {
+enum TimeMatch {
     TRUE,
     FALSE,
     SAME_HOUR,
 };
 
-timeMatch checkTimeMatch(int i, time time) {
+TimeMatch checkTimeMatch(int i, time time) {
     // checks if this medication needs to be taken now
     // if: hour == curHour, curMin < 30, lastTaken == curHour
 }
