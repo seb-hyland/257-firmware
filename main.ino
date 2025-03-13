@@ -12,6 +12,7 @@ struct timing {
 struct MedConfig {
     int dosage;
     timing timing;
+    bool initialized;
 };
 
 MedConfig globalConfig[10];
@@ -33,6 +34,7 @@ void setup() {
     while (i < 10) {
 	globalConfig[i][0] = initDosage(i);
 	globalConfig[i][1] = initTiming(i);
+	globalConfig[i][2] = true;
 	i++;
 
 	if (i == 9) {
@@ -57,6 +59,9 @@ void setup() {
 	    }
 	}
 	if (input == 'f') {
+	    for (int j = i; j < 10; j++) {
+		globalConfig[j][2] = false;
+	    }
 	    break;
 	}
     }

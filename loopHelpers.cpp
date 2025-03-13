@@ -4,6 +4,9 @@
 #include "globals.h"
 
 void checkStatus(time time) {
+    for (int i = 0; i < 10; i++) {
+	
+    }
     // loops over every med
     // for each: checkTimeMatch
         // case TRUE
