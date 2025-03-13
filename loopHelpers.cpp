@@ -3,6 +3,9 @@
 #include <Servo.h>
 #include "globals.h"
 
+#define LED_PIN 6
+Servo servo;
+
 // Configuring the lcd display connected to the breadboard
 const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
@@ -16,7 +19,7 @@ LCDStatus displayStatus;
 void checkStatus() {
     for (int i = 0; i < 10; i++) {
 	if (globalConfig[i].initialized) {
-	    switch (checkTimeMatch(i, time)) {
+	    switch (checkTimeMatch(i, rtc.getEpoch())) {
 	    case TRUE:
 		// Medicine not yet taken
 		if (rtc.getEpoch() - globalConfig[i].lastDose > 30 * 60) {
@@ -27,12 +30,13 @@ void checkStatus() {
 		    if (state == BUZZER_IDLE) {
 			buzzer.playMelody();
 		    }
-
+            lcdManager(LEDStatus::ON);
 		    measureBrightness();
 		}
 		// Medicine taken
 		else if (displayStatus != LCDStatus::ALERT_CAREGIVER) {
 		    buzzer.stop();
+		    lcdManager(LEDStatus::OFF);
 		}
 		break;
 	    case FALSE:
@@ -58,10 +62,27 @@ enum TimeMatch {
     SAME_HOUR,
 };
 
-TimeMatch checkTimeMatch(int i) {
-    
+TimeMatch checkTimeMatch(int i, time_t time) {
+
     // checks if this medication needs to be taken now
     // if: hour == curHour, curMin < 30, lastTaken == curHour
+}
+
+enum LEDStatus() {
+    ON,
+    OFF
+};
+
+void ledManager(enum LEDStatus) {
+    serial.begin(9600);
+    pinMode(6, OUTPUT);
+    switch (LCDStatus) {
+        case ON:
+        digitalWrite(LED_PIN, HIGH);
+
+        case OFF:
+        digitalWrite(LED_PIN, LOW);
+    }
 }
 
 enum LCDStatus {
@@ -70,15 +91,17 @@ enum LCDStatus {
     OFF
 };
 
-void lcdManager() {
+void lcdManager(enum LCDStatus) {
     switch (displayStatus) {
         case ALERT_MEDICATION:
+            lcd.begin(16, 2);
             lcd.setCursor(0,0);
             lcd.print("Please take your");
             lcd.setCursor(1,5);
             lcd.print("  medication");
 
         case ALERT_CAREGIVER:
+            lcd.begin(16, 2);
             lcd.setCursor(0,0);
             lcd.print("      ALERT");
             lcd.setCursor(1,5);
@@ -95,6 +118,7 @@ void alertVerbal() {
 
 long measureBrightness() {
     // TODO
+
 }
 
 void checkBrightnessThreshold(long brightness) {

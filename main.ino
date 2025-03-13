@@ -4,8 +4,7 @@
 #include "globals.h"
 
 struct timing {
-    long frequency;
-    vector<long> times;
+    vector<long> times; //time of day the dose needs to be taken at
 };
 
 struct MedConfig {
@@ -24,6 +23,7 @@ const BUZZER_PIN = 7;
 void setup() {
     lcd.begin(16, 2);
     pinMode(A0, INPUT);
+    pinMode(6, OUTPUT);
 
     Serial.begin(9600);
     rtc.startClock();
