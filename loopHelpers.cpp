@@ -35,7 +35,22 @@ enum lcdStatus {
 };
 
 void lcdManager(enum lcdStatus) {
-    // TODO
+    switch (lcdStatus) {
+        case ALERT_MEDICATION:
+            lcd.setCursor(0,0);
+            lcd.print("Please take your");
+            lcd.setCursor(1,5);
+            lcd.print("  medication");
+
+        case ALERT_CAREGIVER:
+            lcd.setCursor(0,0);
+            lcd.print("      ALERT");
+            lcd.setCursor(1,5);
+            lcd.print("  MISSED DOSE");
+
+        case OFF:
+            lcd.clear();
+    }
 }
 
 void alertVerbal() {
