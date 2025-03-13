@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <LiquidCrystal.h>
 #include <Servo.h>
+#include "globals.h"
 
 void checkStatus(time time) {
     // loops over every med

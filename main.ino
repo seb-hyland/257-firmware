@@ -2,6 +2,8 @@
 #include <vector>
 #include <array>
 
+#include "globals.h"
+
 struct timing {
     long frequency;
     vector<long> times;
@@ -22,7 +24,6 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 int sensorValue = 0;
 
 void setup() {
-
     lcd.begin(16, 2);
     pinMode(A0, INPUT);
 
