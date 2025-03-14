@@ -68,7 +68,5 @@ void setup() {
 } 
 
 void loop() {
-    unsigned long currentTime = millis();
-
-    // TODO
+    checkStatus();
 }
