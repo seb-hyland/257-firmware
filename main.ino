@@ -14,7 +14,7 @@ struct MedConfig {
     time_t lastDose;
 };
 
-MedConfig globalConfig[10];
+MedConfig globalConfig[8];
 RTC rtc;
 
 const BUZZER_PIN = 7;
@@ -30,14 +30,14 @@ void setup() {
     buzzer = ezBuzzer(BUZZER_PIN);
 
     int i = 0;
-    while (i < 10) {
+    while (i < 8) {
 	globalConfig[i].dosage = initDosage(i);
 	globalConfig[i].timing = initTiming(i);
 	globalConfig[i].initialized = true;
 	globalConfig[i].lastDose = 0;
 	i++;
 
-	if (i == 9) {
+	if (i == 7) {
 	    break;
 	}
 
@@ -59,7 +59,7 @@ void setup() {
 	    }
 	}
 	if (input == 'f') {
-	    for (int j = i; j < 10; j++) {
+	    for (int j = i; j < 8; j++) {
 		globalConfig[j].initialized = false;
 	    }
 	    break;

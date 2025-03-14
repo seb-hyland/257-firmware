@@ -4,6 +4,8 @@
 #include "globals.h"
 
 #define LED_PIN 6
+#define LIGHT_THRESHOLD 4
+
 Servo servo;
 
 // Configuring the lcd display connected to the breadboard
@@ -30,13 +32,13 @@ void checkStatus() {
 		    if (state == BUZZER_IDLE) {
 			buzzer.playMelody();
 		    }
-            lcdManager(LEDStatus::ON);
-		    measureBrightness();
+            ledManager(LEDStatus::ON);
+		    measureBrightness(i);
 		}
 		// Medicine taken
 		else if (displayStatus != LCDStatus::ALERT_CAREGIVER) {
 		    buzzer.stop();
-		    lcdManager(LEDStatus::OFF);
+		    ledManager(LEDStatus::OFF);
 		}
 		break;
 	    case FALSE:
@@ -49,6 +51,7 @@ void checkStatus() {
 		if (rtc.getEpoch() - globalConfig[i].lastDose > 60 * 60) {
 		    displayStatus = LCDStatus::ALERT_CAREGIVER;
 		    buzzer.beep();
+		    ledManager(LEDStatus::OFF);
 		}
 		break;
 	    }
@@ -62,10 +65,21 @@ enum TimeMatch {
     SAME_HOUR,
 };
 
-TimeMatch checkTimeMatch(int i, time_t time) {
+enum checkTimeMatch(int i, time_t time) {
+    //if they match then switches TimeMatch function
+    for(int j = 0; j < globalConfig[i].timing.size(), j++) {
+        if(globalConfig[i].timing[j] == (int) rtc.getHours()) {
+            if((int) rtc.getMinutes() <= 30) {
+                return TimeMatch::TRUE;
+            }
+            else {
+                return TimeMatch::SAME_HOUR;
+            }
 
-    // checks if this medication needs to be taken now
-    // if: hour == curHour, curMin < 30, lastTaken == curHour
+        }
+    }
+
+    return TimeMatch::FALSE;
 }
 
 enum LEDStatus() {
@@ -116,21 +130,45 @@ void alertVerbal() {
     // TODO
 }
 
-long measureBrightness() {
-    // TODO
+long measureBrightness(int index) {
+    pinMode(A0, INPUT);
+
+    sensorValue = analogRead(A0);
+
+    checkBrightnessThreshold(sensorValue, index);
 
 }
 
-void checkBrightnessThreshold(long brightness) {
-    // TODO
+void checkBrightnessThreshold(int brightness, int index) {
+    if(brightness <= LIGHT_THRESHOLD) {
+        dispenseMedication(index);
+    }
 }
 
-void dispenseMedication() {
-    // TODO
+void dispenseMedication(int index) {
+    movePlatform(index);
+    delay(5000);
+    moveArm();
+    delay(5000);
+    movePlatform(0);
+
 }
 
-void movePlatform() {
-    // TODO
+void movePlatform(int index) {
+    servo.attach(A1);
+    if(index == 0) {
+    servo.write(0);
+    }
+
+    if (index => 4) {
+        index = index - 4;
+        int location_degrees = 14.3 + (index * 28.6);
+    }
+    else {
+        location_degrees = 329.22 + 14.3 + (index * 28.6);
+    }
+
+    servo.write(location_degrees);
 }
 
 void moveArm() {
