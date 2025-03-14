@@ -15,6 +15,9 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 // Initializing a variable to keep track of the light sensor value
 int sensorValue = 0;
 
+//initializing variable for solenoid
+int solenoidPin = 8;
+
 // Initializing a global to hold the LCD display status
 LCDStatus displayStatus;
 
@@ -172,7 +175,11 @@ void movePlatform(int index) {
 }
 
 void moveArm() {
-    // TODO
+    pinMode(solenoidPin, OUTPUT);
+
+    digitalWrite(solenoidPin, HIGH);      //Switch Solenoid ON
+    delay(3000);                          //Wait 1 Second
+    digitalWrite(solenoidPin, LOW);       //Switch Solenoid OFF
 }
 
 void alertCaregiver() {
