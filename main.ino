@@ -3,13 +3,6 @@
 #include <array>
 #include "globals.h"
 
-<<<<<<< HEAD
-=======
-struct timing {
-    vector<long> times; //time of day the dose needs to be taken at
-};
-
->>>>>>> 2caef1979d7a9755b9c1a3f3f297e97fe8401498
 struct MedConfig {
     int dosage;
     vector<long> times;
