@@ -3,6 +3,13 @@
 #include <array>
 #include "globals.h"
 
+<<<<<<< HEAD
+=======
+struct timing {
+    vector<long> times; //time of day the dose needs to be taken at
+};
+
+>>>>>>> 2caef1979d7a9755b9c1a3f3f297e97fe8401498
 struct MedConfig {
     int dosage;
     vector<long> times;
@@ -10,7 +17,7 @@ struct MedConfig {
     time_t lastDose;
 };
 
-MedConfig globalConfig[10];
+MedConfig globalConfig[8];
 RTC rtc;
 
 const BUZZER_PIN = 7;
@@ -19,20 +26,21 @@ const BUZZER_PIN = 7;
 void setup() {
     lcd.begin(16, 2);
     pinMode(A0, INPUT);
+    pinMode(6, OUTPUT);
 
     Serial.begin(9600);
     rtc.startClock();
     buzzer = ezBuzzer(BUZZER_PIN);
 
     int i = 0;
-    while (i < 10) {
+    while (i < 8) {
 	globalConfig[i].dosage = initDosage(i);
 	globalConfig[i].times = initTiming(i);
 	globalConfig[i].initialized = true;
 	globalConfig[i].lastDose = 0;
 	i++;
 
-	if (i == 9) {
+	if (i == 7) {
 	    break;
 	}
 
@@ -54,7 +62,7 @@ void setup() {
 	    }
 	}
 	if (input == 'f') {
-	    for (int j = i; j < 10; j++) {
+	    for (int j = i; j < 8; j++) {
 		globalConfig[j].initialized = false;
 	    }
 	    break;
@@ -63,7 +71,5 @@ void setup() {
 } 
 
 void loop() {
-    unsigned long currentTime = millis();
-
-    // TODO
+    checkStatus();
 }
