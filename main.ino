@@ -17,10 +17,6 @@ const BUZZER_PIN = 7;
 
 
 void setup() {
-    lcd.begin(16, 2);
-    pinMode(A0, INPUT);
-    pinMode(6, OUTPUT);
-
     Serial.begin(9600);
     rtc.startClock();
     buzzer = ezBuzzer(BUZZER_PIN);

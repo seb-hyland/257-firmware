@@ -1,24 +1,12 @@
-#include <Arduino.h>
-#include <LiquidCrystal.h>
-#include <Servo.h>
+#include "loopHelpers.h"
 #include "globals.h"
 
-//defining variables
-#define LED_PIN 6
-#define LIGHT_THRESHOLD 4
-Servo servo;
-#define NOTE_C4  262
-#define NOTE_G3  196
-#define NOTE_A3  220
-#define NOTE_B3  247
-#define NOTE_C4  262
-
-//creating the melody to play when the pills are dispensed
+// Creating the melody to play when the pills are dispensed
 int melody[] = {
     NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, 0, NOTE_B3, NOTE_C4
 };
 
-//how long to play each note for
+// How long to play each note for (in millis)
 int noteDurations[] = {
     250, 125, 125, 250, 250, 250, 250, 250
 };
@@ -43,11 +31,11 @@ void checkStatus() {
     for (int i = 0; i < 8; i++) {
         if (globalConfig[i].initialized) {
             // Compare medication time to current RTC
-            switch (checkTimeMatch(i, time)) {
+            switch (checkTimeMatch(i)) {
                 // Within 30 mins from desired medication time
                 case TRUE:
                     // Medicine not yet taken
-                    if (rtc.getEpoch() - globalConfig[i].lastDose > 30 * 60) {
+                    if (!medicationTaken()) {
                         if (displayStatus != LCDStatus::ALERT_CAREGIVER) {
                             displayStatus = LCDStatus::ALERT_MEDICATION;
                         }
@@ -81,44 +69,46 @@ void checkStatus() {
                         ledManager(LEDStatus::OFF);
 	            }
 	            break;
-	        }
+            }
 	}
     }
 }
 
-//used to keep track of the medication dose times and the current time
-enum TimeMatch {
-    TRUE,
-    FALSE,
-    SAME_HOUR,
-};
+// Check if the medication i has already been taken within the last 30 minutes
+bool medicationTaken(int i) {
+    return rtc.getEpoch() - globalConfig[i].lastDose > 30 * 60;
+}
 
+// Check medication times against RTC
 TimeMatch checkTimeMatch(int i) {
-    if (globalConfig[i].times == (long) rtc.getHours()) {
-	if (rtc.getMinutes() <= 30) {
-	    return TimeMatch::TRUE;
-	} else {
-	    return TimeMatch::SAME_HOUR;
+    for (int j = 0; j < globalConfig[i].timing.size(); j++) {
+	// Checks if it is the same hour
+	if (globalConfig[i].timing[j] == (long) rtc.getHours()) {
+	    if (medicationWindowTracker) {
+		return TimeMatch::TRUE;
+	    }
+	    else {
+		return TimeMatch::SAME_HOUR;
+	    }
 	}
-    } else {
-	return TimeMatch::FALSE;
     }
+    return TimeMatch::FALSE;
 }
 
-//used to regulate the speaker
-enum speakerStatus {
-    MELODY,
-    ALERT,
-    OFF
-};
 
-//Turns speaker on and off
+// Check if medication window has passed 
+bool medicationWindowTracker {
+    return rtc.getMinutes() < 30;
+}
+
+
+// Turns speaker on and off
 void alertVerbal(speakerStatus status) {
     // Initializes the speaker pin
     pinMode(7, OUTPUT);
 
     switch(status) {
-        // Plays a melody to remind them to take the medication
+        // Plays a melody to remind user to take the medication
         case MELODY:
             int state = buzzer.getState();
             if (state == BUZZER_IDLE) {
@@ -138,17 +128,10 @@ void alertVerbal(speakerStatus status) {
     }
 }
 
-// Used to regulate the LED
-enum LEDStatus {
-    ON,
-    OFF
-};
-
 // Turns LED on and off
 void ledManager(LEDStatus status) {
-    //initializes the LED
-    Serial.begin(9600);
-    pinMode(6, OUTPUT);
+    // Initializes the LED
+    pinMode(LED_PIN, OUTPUT);
 
     switch (status) {
         case ON: //turns LED on
@@ -158,21 +141,15 @@ void ledManager(LEDStatus status) {
         case OFF: //turns LED off
             digitalWrite(LED_PIN, LOW);
             break;
-        }
+    }
 }
 
-//used to regulate the LCD
-enum LCDStatus {
-    ALERT_MEDICATION,
-    ALERT_CAREGIVER,
-    OFF
-};
-
-//Turns LCD on and off
+// Manages LCD display 
 void lcdManager(LCDStatus status) {
     displayStatus = status;
     switch (status) {
-        case ALERT_MEDICATION: //displays reminder to take medication
+        // Displays reminder to take medication
+        case ALERT_MEDICATION:
             lcd.begin(16, 2);
             lcd.setCursor(0,0);
             lcd.print("Please take your");
@@ -180,7 +157,8 @@ void lcdManager(LCDStatus status) {
             lcd.print("  medication");
             break;
 
-        case ALERT_CAREGIVER: //displays alert for caregiver
+        // Displays alert for caregiver
+        case ALERT_CAREGIVER:
             lcd.begin(16, 2);
             lcd.setCursor(0,0);
             lcd.print("      ALERT");
@@ -188,29 +166,28 @@ void lcdManager(LCDStatus status) {
             lcd.print("  MISSED DOSE");
             break;
 
-        case OFF: //turns off display
+        // Turns off display
+        case OFF:
             lcd.clear();
             break;
     }
 }
 
-//Measures the value from the light sensor
+// Measures the value from the light sensor
 void measureBrightness(int index) {
-    //initializes sensor
+    // Initializes sensor
     pinMode(A0, INPUT);
-    Serial.begin(9600);
 
-    //reads the value from the sensor
+    // Reads the value from the sensor
     sensorValue = analogRead(A0);
 
-    //calls function to compare sensor value to threshold
+    // Calls function to compare sensor value to threshold
     checkBrightnessThreshold(sensorValue, index);
-
 }
 
-//Checks if light sensor is detecting hand at dispenser
+// Checks if light sensor is detecting hand at dispenser
 void checkBrightnessThreshold(int brightness, int index) {
-    //calls function that dispenses medication if the user's hand is there
+    // Calls function that dispenses medication if the user's hand is there
     if (brightness <= LIGHT_THRESHOLD) {
         dispenseMedication(index);
     }
@@ -230,57 +207,60 @@ void dispenseMedication(int index) {
     globalConfig[index].lastDose = rtc.getEpoch();
 }
 
-//Moves the medication cartridge to the dispenser site
+// Moves the medication cartridge to the dispenser site
 void movePlatform(int index) {
-    //initializing the servo
+    // Initializing the servo
     servo.attach(A1);
-    //returning servo to original position
+    // Returning servo to original position
     if (index == -1) {
         servo.write(0);
     }
 
-    //if the medication is on right half, calculates the location of the cartridge
+    int location_degrees;
+    // If the medication is on right half, calculates the location of the cartridge
     if (index >= 4) {
         index = index - 4;
-        int location_degrees = 14.3 + (index * 28.6);
+        location_degrees = 14.3 + (index * 28.6);
     }
-    //if the medication is on left half, calculates the location of the cartridge
+    // If the medication is on left half, calculates the location of the cartridge
     else {
         location_degrees = 329.22 + 14.3 + (index * 28.6);
     }
-    //moves the cartridge to the front of the device
+    // Moves the cartridge to the front of the device
     servo.write(location_degrees);
 }
 
-//Pushes the medication out
+// Pushes the medication out
 void moveArm() {
-    //initializes the solenoid arm
+    // Initializes the solenoid arm
     pinMode(solenoidPin, OUTPUT);
 
-    //moves arm forwards to push out medication
+    // Moves arm forwards to push out medication
     digitalWrite(solenoidPin, HIGH);
     delay(3000);
-    //moves arm back to original location
+
+    // Moves arm back to original location
     digitalWrite(solenoidPin, LOW);
 }
 
 // Lets the caregiver turn off missed dose alerts
 void caregiverReset () {
-    //initializes the light sensor
+    // Initializes the light sensor
     pinMode(A0, INPUT);
     Serial.begin(9600);
 
-    //checks if the caregiver's hand is there
+    // Checks if the caregiver's hand is present 
     if (analogRead(A0) <= LIGHT_THRESHOLD) {
         // Turns off alerts and dispenses medication if it is
         alertVerbal(speakerStatus::OFF);
         ledManager(LEDStatus::OFF);
         lcdManager(LCDStatus::OFF);
         dispenseMedication(i);
+
         // Updates the time the last dose was taken for each medication
+        // Prevents re-triggering of the caregiver alert
         for (int i = 0; i < 8; i++) {
             globalConfig[i].lastDose = rtc.getEpoch();
         }
     }
 }
-

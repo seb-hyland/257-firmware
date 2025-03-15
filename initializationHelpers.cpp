@@ -1,8 +1,7 @@
-#include <Arduino.h>
 #include <StandardCplusplus.h>
-#include <vector>
 #include <array>
 #include "globals.h"
+#include "initializationHelpers.h"
 
 void initTime() {
     int hour;
