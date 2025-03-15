@@ -65,37 +65,18 @@ int initDosage() {
     }
 }
 
-timing initTiming() {
-    timing result;
-    
-    Serial.println("Enter the frequency (in days) at which this medication should be taken.");
-    Serial.println("Ex: If the medication should be taken daily, enter `1`. If it should be taken every other day, enter `2`.");
-    while (true) {
-	if (Serial.available() > 0) {
-	    long input = serial.parseInt();
-
-	    if (input > 0) {
-		result[0] = input;
-		break;
-	    }
-	}
-	Serial.println("Invalid input. Please try again, entering a single nonzero number:");
-    }
-
+vector<long> initTiming() {
     Serial.println("Enter the time(s) of day at which this medication should be taken as a comma-separated list.");
     Serial.println("Ex: For a medication that needs to be taken at 9am and 6pm, enter `9,18`");
     while (true) {
 	if (Serial.available() > 0) {
 	    parsedInput = readCSV();
 	    if (!parsedInput.empty()) {
-		result[1] = parsedInput;
-		break;
+		return parsedInput;
 	    }
 	    Serial.println("Invalid input. Please try again, entering a comma-separated list of numbers.");
 	}
     }
-
-    return result;
 }
 
 vector<long> readCSV() {

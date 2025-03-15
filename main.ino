@@ -3,14 +3,9 @@
 #include <array>
 #include "globals.h"
 
-struct timing {
-    long frequency;
-    vector<long> times;
-};
-
 struct MedConfig {
     int dosage;
-    timing timing;
+    vector<long> times;
     bool initialized;
     time_t lastDose;
 };
@@ -32,7 +27,7 @@ void setup() {
     int i = 0;
     while (i < 10) {
 	globalConfig[i].dosage = initDosage(i);
-	globalConfig[i].timing = initTiming(i);
+	globalConfig[i].times = initTiming(i);
 	globalConfig[i].initialized = true;
 	globalConfig[i].lastDose = 0;
 	i++;

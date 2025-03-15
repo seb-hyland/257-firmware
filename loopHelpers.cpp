@@ -59,9 +59,15 @@ enum TimeMatch {
 };
 
 TimeMatch checkTimeMatch(int i) {
-    
-    // checks if this medication needs to be taken now
-    // if: hour == curHour, curMin < 30, lastTaken == curHour
+    if (globalConfig[i].times == (long) rtc.getHours()) {
+	if (rtc.getMinutes() <= 30) {
+	    return TimeMatch::TRUE;
+	} else {
+	    return TimeMatch::SAME_HOUR;
+	}
+    } else {
+	return TimeMatch::FALSE;
+    }
 }
 
 enum LCDStatus {
