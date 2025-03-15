@@ -15,12 +15,12 @@ Servo servo;
 
 //creating the melody to play when the pills are dispensed
 int melody[] = {
-  NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, 0, NOTE_B3, NOTE_C4
+    NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, 0, NOTE_B3, NOTE_C4
 };
 
 //how long to play each note for
 int noteDurations[] = {
-  4, 8, 8, 4, 4, 4, 4, 4
+    250, 125, 125, 250, 250, 250, 250, 250
 };
 
 // Configuring the lcd display connected to the breadboard
@@ -152,13 +152,13 @@ void ledManager(LEDStatus status) {
 
     switch (status) {
         case ON: //turns LED on
-        digitalWrite(LED_PIN, HIGH);
-        break;
+            digitalWrite(LED_PIN, HIGH);
+            break;
 
         case OFF: //turns LED off
-        digitalWrite(LED_PIN, LOW);
-        break;
-    }
+            digitalWrite(LED_PIN, LOW);
+            break;
+        }
 }
 
 //used to regulate the LCD
@@ -211,7 +211,7 @@ void measureBrightness(int index) {
 //Checks if light sensor is detecting hand at dispenser
 void checkBrightnessThreshold(int brightness, int index) {
     //calls function that dispenses medication if the user's hand is there
-    if(brightness <= LIGHT_THRESHOLD) {
+    if (brightness <= LIGHT_THRESHOLD) {
         dispenseMedication(index);
     }
 }
@@ -235,7 +235,7 @@ void movePlatform(int index) {
     //initializing the servo
     servo.attach(A1);
     //returning servo to original position
-    if(index == -1) {
+    if (index == -1) {
         servo.write(0);
     }
 
@@ -271,7 +271,7 @@ void caregiverReset () {
     Serial.begin(9600);
 
     //checks if the caregiver's hand is there
-    if(analogRead(A0) <= LIGHT_THRESHOLD) {
+    if (analogRead(A0) <= LIGHT_THRESHOLD) {
         // Turns off alerts and dispenses medication if it is
         alertVerbal(speakerStatus::OFF);
         ledManager(LEDStatus::OFF);
